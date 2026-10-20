@@ -1,4 +1,4 @@
-Zenodo H5AD data files for reproducing the figure panels in this repository
+Zenodo H5AD data files for reproducing the figure panels in this repository.
 
 Use the descriptive filenames below in the Zenodo record. 
 
