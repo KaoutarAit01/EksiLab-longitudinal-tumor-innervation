@@ -30,7 +30,8 @@ python figure_code/figure_5d_local_redistribution.py \
 ```
 
 ## Figure panels included
-
+- `figure_2_axon_clustering.py` (Figure 2a-b)
+- `figure_3_axon_morphology.py` (Figure 3b-d)
 - `figure_4a_cn_heatmap.py` (Figure 4a)
 - `figure_4bc_whole_tissue.py` (Figure 4b–c)
 - `figure_4e_window_density.py` (Figure 4e)
