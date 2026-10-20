@@ -1,4 +1,4 @@
-Zenodo H5AD data files for reproducing the figure panels in this repository.
+Zenodo H5AD data files for reproducing the figure panels in this repository are available at https://doi.org/10.5281/zenodo.23482995.
 
 Use the descriptive filenames below in the Zenodo record. 
 
