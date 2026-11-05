@@ -14,15 +14,14 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch, Polygon
 from scipy import sparse
 from scipy.optimize import brentq
-from scipy.stats import norm, mannwhitneyu, ttest_ind
+from scipy.stats import chi2_contingency, norm, mannwhitneyu, ttest_ind
 from scipy.cluster.hierarchy import linkage, leaves_list
 from sklearn.mixture import GaussianMixture
 from statsmodels.stats.multitest import multipletests
 
 
 RP_PATH = Path("data/RP_Neuronal_data_axons.h5ad")
-AS_PATH = None
-# AS_PATH = Path("data/AS_Neuronal_data_axons.h5ad")
+AS_PATH = Path("data/AS_Neuronal_data_axons.h5ad")  # Figure 3 uses both; --as "" runs RP alone
 OUTPUT_DIR = Path("morphology_results")
 LABELS = {
     "area": ("Small", "Large"),
@@ -269,7 +268,7 @@ def fyn_plot(name, data, frame, output):
 
 
 def composition_plot(name, data, output):
-    """Connect group proportions across time, not individual axons."""
+    """Connect group proportions across time, not individual axons; t1 vs t2 by chi-square on axon counts."""
     if not {"time_point", "neighborhood"}.issubset(data.obs):
         return f"{name}: composition plot skipped (requires time_point and neighborhood)"
     df = data.obs[["time_point", "neighborhood", "solidity_label"]].dropna().copy()
@@ -282,6 +281,7 @@ def composition_plot(name, data, output):
         if (counts.sum(axis=1) == 0).any():
             continue
         proportions = counts.div(counts.sum(axis=1), axis=0) * 100
+        p = chi2_contingency(counts)[1]
         fig, ax = plt.subplots(figsize=(4, 3.6))
         bottom = np.zeros(2)
         for group in LABELS["solidity"]:
@@ -289,11 +289,11 @@ def composition_plot(name, data, output):
             ax.add_patch(Polygon([(0.1, bottom[0]), (.9, bottom[1]), (.9, bottom[1]+vals[1]), (.1, bottom[0]+vals[0])], color=COLORS[group], alpha=.4, linewidth=0))
             ax.bar([0, 1], vals, bottom=bottom, width=.2, color=COLORS[group])
             for i, time in enumerate(["t1", "t2"]):
-                rows.append(dict(neighborhood=neighborhood, time_point=time, morphology=group, count=int(counts.loc[time, group]), percentage=vals[i]))
+                rows.append(dict(neighborhood=neighborhood, time_point=time, morphology=group, count=int(counts.loc[time, group]), percentage=vals[i], chi_square_p=p))
                 if vals[i] > 8:
                     ax.text(i, bottom[i]+vals[i]/2, f"{vals[i]:.1f}%", ha="center", va="center", color="white", fontsize=8)
             bottom += vals
-        ax.set(xticks=[0, 1], xticklabels=["t1", "t2"], ylabel="Axons (%)", ylim=(0, 100), title=f"{name}: {neighborhood}")
+        ax.set(xticks=[0, 1], xticklabels=["t1", "t2"], ylabel="Axons (%)", ylim=(0, 100), title=f"{name}: {neighborhood}  {stars(p)}")
         ax.legend(handles=[Patch(color=COLORS[g], label=g) for g in LABELS["solidity"]], loc="upper center", bbox_to_anchor=(.5, -.12), ncol=2, frameon=False)
         safe = "".join(c if c.isalnum() else "_" for c in str(neighborhood))
         save_figure(fig, output, f"{name}_composition_{safe}")
@@ -336,7 +336,7 @@ def run(rp, as_path, output, layer="auto"):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rp", type=Path, default=RP_PATH)
-    parser.add_argument("--as", dest="as_path", type=Path, default=AS_PATH)
+    parser.add_argument("--as", dest="as_path", type=lambda s: Path(s) if s else None, default=AS_PATH)
     parser.add_argument("--output", type=Path, default=OUTPUT_DIR)
     parser.add_argument("--expression-layer", default="auto", help="auto, X, or a layer name")
     args = parser.parse_args()
