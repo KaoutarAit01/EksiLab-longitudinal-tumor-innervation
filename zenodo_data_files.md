@@ -1,6 +1,6 @@
 Zenodo H5AD data files for reproducing the figure panels in this repository are available at https://doi.org/10.5281/zenodo.22968979.
 
-> [!CAUTION]
+> [!IMPORTANT]
 > During peer review, the Zenodo record is restricted. Reviewers can access it through the private link in the manuscript's Data availability statement. The record will be made public upon publication.
 
 Use the descriptive filenames below in the Zenodo record. 
