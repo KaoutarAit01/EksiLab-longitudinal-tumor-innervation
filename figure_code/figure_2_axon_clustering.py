@@ -1,26 +1,35 @@
-"""Axon clustering across marker transformations and Leiden resolutions."""
+"""Axon clustering across marker transformations and Leiden resolutions (Figure 2a-b).
+
+The released axon H5AD files store per-marker Z-scored values in X, so "Raw" below means the
+stored values. Figure 2a-b shows AS axons grouped by the saved axon types (obs["axontype"]),
+which were named from the saved Leiden clustering (Leiden using resolution 0.2 for AS, Leiden using resolution 0.3 for RP).
+"""
 
 from pathlib import Path
+import argparse
 import numpy as np
 import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from scipy import sparse
 import scanpy as sc
 
 
-DATA_PATH = Path("data/RP_Neuronal_data_axons.h5ad")
-# DATA_PATH = Path("data/AS_Neuronal_data_axons.h5ad")
+DATA_PATH = Path("data/AS_Neuronal_data_axons.h5ad")  # Figure 2; RP: data/RP_Neuronal_data_axons.h5ad
 OUTPUT_DIR = Path("axon_figures") / DATA_PATH.stem
 
 RESOLUTIONS = [round(i / 10, 1) for i in range(1, 11)]
-SELECTED_RESOLUTION = 0.3
+SELECTED_RESOLUTION = 0.2  # used when USE_EXISTING_LABELS is False (saved: 0.2 for AS, 0.3 for RP)
 SELECTED_TRANSFORMATION = "Raw"  # Raw, Z-score, Log1p, Log1p + Z-score
 LOG_POLICY = "shift_nonnegative"  # or "direct"
-USE_EXISTING_LABELS = False
+USE_EXISTING_LABELS = True  # Figure 2a-b; False plots the new Leiden clusters instead
 SAVE_RESOLUTION_COMPARISON = True
 SEED = 42
 N_NEIGHBORS = 15
+# Embedding for the final panels (Figure 2a); the resolution comparison uses N_NEIGHBORS and SEED.
+FIGURE_UMAP = {"n_neighbors": 22, "min_dist": 0.12, "spread": 1.25, "random_state": 7, "init_pos": "spectral"}
 
 CLUSTER_NAMES = {}  # {"0": "marker-based label"}
 
@@ -189,6 +198,9 @@ def main():
         raise ValueError(f"Choose one of {list(versions)}")
     selected = versions[SELECTED_TRANSFORMATION].copy()
     select_groups(selected)
+    umap_settings = dict(FIGURE_UMAP)
+    sc.pp.neighbors(selected, use_rep="X", n_neighbors=min(umap_settings.pop("n_neighbors"), selected.n_obs - 1))
+    sc.tl.umap(selected, **umap_settings)
     grouping = "Existing axon types" if USE_EXISTING_LABELS else f"Leiden {SELECTED_RESOLUTION:.1f}"
     suffix = "existing_labels" if USE_EXISTING_LABELS else f"leiden_{SELECTED_RESOLUTION:.1f}"
     prefix = f"{VERSION_FILES[SELECTED_TRANSFORMATION]}_{suffix}"
@@ -202,4 +214,18 @@ def main():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--input", type=Path, default=DATA_PATH)
+    parser.add_argument("--output-dir", type=Path, default=Path("axon_figures"))
+    parser.add_argument("--transformation", choices=list(VERSION_FILES), default=SELECTED_TRANSFORMATION)
+    parser.add_argument("--resolution", type=float, choices=RESOLUTIONS, default=SELECTED_RESOLUTION,
+                        help="Leiden resolution for the final panels with --new-clusters")
+    parser.add_argument("--new-clusters", action="store_true",
+                        help="plot the new Leiden clusters instead of the saved axon types")
+    parser.add_argument("--skip-resolution-comparison", action="store_true")
+    args = parser.parse_args()
+    DATA_PATH, OUTPUT_DIR = args.input, args.output_dir / args.input.stem
+    SELECTED_TRANSFORMATION, SELECTED_RESOLUTION = args.transformation, args.resolution
+    USE_EXISTING_LABELS = not args.new_clusters
+    SAVE_RESOLUTION_COMPARISON = not args.skip_resolution_comparison
     versions = main()
