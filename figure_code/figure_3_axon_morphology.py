@@ -23,6 +23,13 @@ from statsmodels.stats.multitest import multipletests
 RP_PATH = Path("data/RP_Neuronal_data_axons.h5ad")
 AS_PATH = Path("data/AS_Neuronal_data_axons.h5ad")  # Figure 3 uses both; --as "" runs RP alone
 OUTPUT_DIR = Path("morphology_results")
+# Figure 3d: AS immune-panel axons with the cellular neighborhoods (CN_k50_n10) of the matching axon rows.
+AS_IMMUNE_PATH = Path("data/AS_Immune_data_axons.h5ad")
+CN_PATH = Path("data/AS_cellular_neighborhoods.h5ad")
+NEIGHBORHOODS = {"Epithelia": [1, 3, 6, 8, 9], "Stroma": [0, 2, 4, 5, 7]}
+# Cutoffs used in the manuscript: the same pooled RP + AS fit, from the scikit-learn version of the
+# original analysis. Newer versions refit marginally different values (--refit-cutoffs).
+MANUSCRIPT_CUTOFFS = {"area": 64.7303, "eccentricity": 0.9360552620122052, "solidity": 0.6967054615730057}
 LABELS = {
     "area": ("Small", "Large"),
     "eccentricity": ("Circular", "Elongated"),
@@ -302,7 +309,24 @@ def composition_plot(name, data, output):
     return f"{name}: {len(rows)//4} neighborhood composition plots saved"
 
 
-def run(rp, as_path, output, layer="auto"):
+def add_neighborhoods(obs, cn_path):
+    """Group each axon's CN_k50_n10, matched on image name and axon id, into NEIGHBORHOODS."""
+    cn = ad.read_h5ad(cn_path, backed="r").obs
+    cn = cn[cn["is_axon"] == True]
+
+    def key(regions, index):
+        return regions.astype(str).str.split("/").str[-1] + "__" + index.astype(str)
+
+    cn_by_axon = pd.Series(cn["CN_k50_n10"].to_numpy(), index=key(cn["unique_region"], cn.index))
+    cn_ids = pd.to_numeric(key(obs["he_id"], obs.index).map(cn_by_axon).astype(str), errors="coerce")
+    result = obs.copy()
+    result["neighborhood"] = pd.Series(pd.NA, index=obs.index, dtype="string")
+    for name, ids in NEIGHBORHOODS.items():
+        result.loc[cn_ids.isin(ids).to_numpy(), "neighborhood"] = name
+    return result
+
+
+def run(rp, as_path, output, layer="auto", as_immune=None, cn=None, refit=False):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     datasets, frames, layers, status = {}, {}, {}, []
@@ -318,6 +342,10 @@ def run(rp, as_path, output, layer="auto"):
         frames[name], layers[name] = expression(data, layer)
     pooled = pd.concat([data.obs[list(LABELS)] for data in datasets.values()])
     fits = {feature: fit_threshold(pooled[feature], feature) for feature in LABELS}
+    if not refit:
+        for feature, cutoff in MANUSCRIPT_CUTOFFS.items():
+            fits[feature].update(threshold=cutoff, threshold_method="manuscript",
+                                 threshold_fit_scale=float(np.log1p(cutoff)) if feature == "area" else cutoff)
     (output / "morphology_thresholds.json").write_text(json.dumps(fits, indent=2))
     threshold_plot(pooled, fits, output)
     quality = []
@@ -327,9 +355,16 @@ def run(rp, as_path, output, layer="auto"):
         for feature in LABELS:
             quality.append(dict(dataset=name, feature=feature, total=len(data), valid=int(data.obs[feature].notna().sum()), invalid=int(data.obs[feature].isna().sum())))
         status.extend([fyn_plot(name, data, frames[name], output), composition_plot(name, data, output)])
+    if as_immune and cn and Path(as_immune).exists() and Path(cn).exists():
+        immune = ad.read_h5ad(as_immune)
+        immune.obs = label_morphology(add_neighborhoods(morphology(immune.obs), cn), fits)
+        status.append(composition_plot("AS", immune, output))
+    else:
+        status.append("AS: Figure 3d skipped (requires --as-immune and --neighborhoods files)")
     pd.DataFrame(quality).to_csv(output / "measurement_quality.csv", index=False)
     status.append(marker_comparison(datasets, frames, output))
-    (output / "run_summary.json").write_text(json.dumps(dict(inputs={"RP": str(rp), "AS": str(as_path) if as_path else None}, expression_layers=layers, threshold_datasets=list(datasets), status=status), indent=2))
+    inputs = {"RP": rp, "AS": as_path, "AS_immune": as_immune, "neighborhoods": cn}
+    (output / "run_summary.json").write_text(json.dumps(dict(inputs={k: str(v) if v else None for k, v in inputs.items()}, expression_layers=layers, threshold_datasets=list(datasets), status=status), indent=2))
     print(f"Results saved in {output.resolve()}")
 
 
@@ -339,8 +374,14 @@ def main():
     parser.add_argument("--as", dest="as_path", type=lambda s: Path(s) if s else None, default=AS_PATH)
     parser.add_argument("--output", type=Path, default=OUTPUT_DIR)
     parser.add_argument("--expression-layer", default="auto", help="auto, X, or a layer name")
+    parser.add_argument("--as-immune", type=lambda s: Path(s) if s else None, default=AS_IMMUNE_PATH,
+                        help="AS immune-panel axons for Figure 3d")
+    parser.add_argument("--neighborhoods", type=lambda s: Path(s) if s else None, default=CN_PATH,
+                        help="AS cellular neighborhoods (CN_k50_n10) for Figure 3d")
+    parser.add_argument("--refit-cutoffs", action="store_true",
+                        help="label morphology with newly fitted cutoffs instead of the manuscript cutoffs")
     args = parser.parse_args()
-    run(args.rp, args.as_path, args.output, args.expression_layer)
+    run(args.rp, args.as_path, args.output, args.expression_layer, args.as_immune, args.neighborhoods, args.refit_cutoffs)
 
 
 if __name__ == "__main__":
