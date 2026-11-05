@@ -62,6 +62,7 @@ list. Install dependencies from `requirements.txt` before running.
 - Hardware: a standard desktop computer; 4 or more CPU cores and 16 GB of RAM recommended.
 - Disk space: about 6 GB for the H5AD inputs.
 - Time: installation takes a few minutes; reproducing all panels takes roughly 30-90 minutes.
+- Demo: run the Figure 3 command above with only `--rp /path/to/h5ad-files/RP_Neuronal_data_axons.h5ad --as "" --as-immune ""`; on this 2.7 MB dataset it finishes in under a minute and writes `morphology_thresholds.pdf` and `morphology_marker_dotplot.pdf`
 
 ## License
 This code is released under the MIT License; see `LICENSE`.
