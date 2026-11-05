@@ -57,8 +57,11 @@ See [zenodo_data_files.md](zenodo_data_files.md) for the complete H5AD input
 list. Install dependencies from `requirements.txt` before running.
 
 ## System requirements
-- Operating system: Linux (tested on Red Hat Enterprise Linux 9.6, x86_64); other operating systems with Python 3.12 should work but have not been tested
-- Software: Python 3.12 (tested with 3.12.5) and the package versions in `requirements.txt`
-- Hardware: a standard desktop computer; 4 or more CPU cores and 16 GB of RAM recommended; no GPU needed
-- Disk space: about 6 GB for the H5AD inputs
-- Time: installation takes a few minutes; reproducing all panels takes roughly 30-90 minutes
+- Operating system: Linux (tested on Red Hat Enterprise Linux 9.6, x86_64); other operating systems with Python 3.12 should work but have not been tested.
+- Software: Python 3.12 (tested with 3.12.5) and the package versions in `requirements.txt`.
+- Hardware: a standard desktop computer; 4 or more CPU cores and 16 GB of RAM recommended.
+- Disk space: about 6 GB for the H5AD inputs.
+- Time: installation takes a few minutes; reproducing all panels takes roughly 30-90 minutes.
+
+## License
+This code is released under the MIT License; see `LICENSE`.
