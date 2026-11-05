@@ -7,6 +7,9 @@ statsmodels==0.14.5
 matplotlib==3.9.3
 seaborn==0.13.2
 Pillow==11.3.0
-scanpy
-igraph
-scikit-learn
+scanpy==1.11.5
+igraph==1.0.0
+scikit-learn==1.9.1
+umap-learn==0.5.12
+pynndescent==0.5.13
+numba==0.68.1
