@@ -56,8 +56,7 @@ python figure_code/figure_5d_local_redistribution.py \
 See [zenodo_data_files.md](zenodo_data_files.md) for the complete H5AD input
 list. Install dependencies from `requirements.txt` before running.
 
-
-**System requirements**
+## System requirements
 - Operating system: Linux (tested on Red Hat Enterprise Linux 9.6, x86_64); other operating systems with Python 3.12 should work but have not been tested
 - Software: Python 3.12 (tested with 3.12.5) and the package versions in `requirements.txt`
 - Hardware: a standard desktop computer; 4 or more CPU cores and 16 GB of RAM recommended; no GPU needed
