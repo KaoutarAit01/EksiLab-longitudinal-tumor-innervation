@@ -58,7 +58,7 @@ list. Install dependencies from `requirements.txt` before running.
 
 ## System requirements
 - Operating system: Figures 2–3 were tested on Linux (Red Hat Enterprise Linux 9.6, x86_64). Other operating systems with Python 3.12 may work but have not been tested for those figures. macOS 15.8.1 (x86_64) was used to run Figures 4–6.
-- Software:  Figures 2–3 were generated with Python 3.12.5; Figures 4–6 with Python 3.12.11. Dependencies are listed in `requirements.txt`.
+- Software: Figures 2–3 were generated with Python 3.12.5; Figures 4–6 with Python 3.12.11. Dependencies are listed in `requirements.txt`.
 - Hardware: For Figures 2–3, a standard desktop computer with at least 4 CPU cores and 16 GB RAM is recommended. Figures 4–6 ran on a MacBook Pro with an Intel Core i5 at 1.4 GHz, 4 cores, and 8 GB RAM. 
 - Disk space: About 6 GB for the H5AD inputs.
 - Time: Installation takes a few minutes. Figures 4–6 took about 6 minutes 35 seconds on the system above. Reproducing all panels may take 30–90 minutes.
