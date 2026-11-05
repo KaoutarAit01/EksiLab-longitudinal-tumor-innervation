@@ -2,7 +2,7 @@ Zenodo H5AD data files for reproducing the figure panels in this repository are 
 
 Use the descriptive filenames below in the Zenodo record. 
 
-To perform axon clustering and morphology analysis, run 'figure_2_axon_clustering.py' and 'figure_3_axon_morphology.py', respectively, on RP_Neuronal_data_axons.h5ad and AS_Neuronal_data_axons.h5ad.
+To perform axon clustering and morphology analysis, run 'figure_2_axon_clustering.py' and 'figure_3_axon_morphology.py', respectively, on RP_Neuronal_data_axons.h5ad and AS_Neuronal_data_axons.h5ad. Figure 3d also uses AS_Immune_data_axons.h5ad and AS_cellular_neighborhoods.h5ad.
 
 For the simplest workflow, download all files into one directory and run
 `figure_code/reproduce_all.py --data-dir /path/to/downloaded-files` from the
