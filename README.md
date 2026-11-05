@@ -24,6 +24,17 @@ Figures and regenerated progression statistics are written to `figures/`. To
 reproduce one panel, run its script directly, for example:
 
 ```bash
+python figure_code/figure_2_axon_clustering.py \
+  --input /path/to/h5ad-files/AS_Neuronal_data_axons.h5ad \
+  --output-dir figures/axon_figures
+
+python figure_code/figure_3_axon_morphology.py \
+  --rp /path/to/h5ad-files/RP_Neuronal_data_axons.h5ad \
+  --as /path/to/h5ad-files/AS_Neuronal_data_axons.h5ad \
+  --as-immune /path/to/h5ad-files/AS_Immune_data_axons.h5ad \
+  --neighborhoods /path/to/h5ad-files/AS_cellular_neighborhoods.h5ad \
+  --output figures/morphology_results
+
 python figure_code/figure_5d_local_redistribution.py \
   --data-dir /path/to/h5ad-files \
   --output-dir figures
