@@ -57,12 +57,12 @@ See [zenodo_data_files.md](zenodo_data_files.md) for the complete H5AD input
 list. Install dependencies from `requirements.txt` before running.
 
 ## System requirements
-- Operating system: Linux (tested on Red Hat Enterprise Linux 9.6, x86_64); other operating systems with Python 3.12 should work but have not been tested.
-- Software: Python 3.12 (tested with 3.12.5) and the package versions in `requirements.txt`.
-- Hardware: a standard desktop computer; 4 or more CPU cores and 16 GB of RAM recommended.
-- Disk space: about 6 GB for the H5AD inputs.
-- Time: installation takes a few minutes; reproducing all panels takes roughly 30-90 minutes.
-- Demo: run the Figure 3 command above with only `--rp /path/to/h5ad-files/RP_Neuronal_data_axons.h5ad --as "" --as-immune ""`; on this 2.7 MB dataset it finishes in under a minute and writes `morphology_thresholds.pdf` and `morphology_marker_dotplot.pdf`
+- Operating system: Figures 2–3 were tested on Linux (Red Hat Enterprise Linux 9.6, x86_64). Other operating systems with Python 3.12 may work but have not been tested for those figures. macOS 15.8.1 (x86_64) was used to run Figures 4–6.
+- Software:  Figures 2–3 were generated with Python 3.12.5; Figures 4–6 with Python 3.12.11. Dependencies are listed in `requirements.txt`.
+- Hardware: For Figures 2–3, a standard desktop computer with at least 4 CPU cores and 16 GB RAM is recommended. Figures 4–6 ran on a MacBook Pro with an Intel Core i5 at 1.4 GHz, 4 cores, and 8 GB RAM. 
+- Disk space: About 6 GB for the H5AD inputs.
+- Time: Installation takes a few minutes. Figures 4–6 took about 6 minutes 35 seconds on the system above. Reproducing all panels may take 30–90 minutes.
+- Demo: Run the Figure 3 command above with only `--rp /path/to/h5ad-files/RP_Neuronal_data_axons.h5ad --as "" --as-immune ""`. On the 2.7 MB dataset, it finishes in under a minute and writes `morphology_thresholds.pdf` and `morphology_marker_dotplot.pdf`.
 
 ## License
 This code is released under the MIT License; see `LICENSE`.
